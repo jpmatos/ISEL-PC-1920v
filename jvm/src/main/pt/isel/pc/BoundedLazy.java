@@ -74,10 +74,10 @@ public class BoundedLazy<E> {
             //If not, this thread will do it
             else {
                 isCalculating = true;
+                }
+            } finally {
+                mon.unlock();
             }
-        } finally {
-            mon.unlock();
-        }
 
         //Start calculating value
         try {
