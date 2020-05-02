@@ -2,10 +2,7 @@ package pt.isel.pc;
 
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 
@@ -29,7 +26,6 @@ public class KeyedExchangeTest {
                 e.printStackTrace();
             }
         });
-        th1.start();
 
         Thread th2 = new Thread(() -> {
             try {
@@ -39,6 +35,9 @@ public class KeyedExchangeTest {
                 e.printStackTrace();
             }
         });
+
+
+        th1.start();
         th2.start();
 
         th1.join();
@@ -77,8 +76,12 @@ public class KeyedExchangeTest {
                     e.printStackTrace();
                 }
             });
-            th.start();
             ths.add(th);
+        }
+
+        Collections.shuffle(ths);
+        for (Thread th : ths) {
+            th.start();
         }
         for (Thread th : ths) {
             th.join();

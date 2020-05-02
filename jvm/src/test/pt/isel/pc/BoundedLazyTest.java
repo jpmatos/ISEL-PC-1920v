@@ -42,13 +42,4 @@ public class BoundedLazyTest {
         }
         assert true;
     }
-
-//    Supplier<Integer> supplier = () -> {
-//        try {
-//            Thread.sleep((long) (Math.random() * 10 * 1000));
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        return (int) (Math.random() * 100);
-//    };
 }
