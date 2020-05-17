@@ -19,6 +19,7 @@ public class TransferQueue<E> {
                 //Add message to list
                 Message msg = new Message(message, mon.newCondition());
                 list.add(msg);
+                cond.signal();
             } finally {
                 mon.unlock();
             }
@@ -33,6 +34,7 @@ public class TransferQueue<E> {
             Condition msgCond = mon.newCondition();
             Message msg = new Message(message, msgCond);
             list.add(msg);
+            cond.signal();
 
             long limit = Timeouts.start(timeout);
             long remaining = Timeouts.remaining(limit);

@@ -6,7 +6,7 @@ import java.util.*;
 
 import static junit.framework.TestCase.assertEquals;
 
-public class KeyedExchangeTest {
+public class ExchangeTest {
 
     @Test
     public void singleExchangeTest() throws InterruptedException {

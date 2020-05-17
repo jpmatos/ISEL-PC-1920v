@@ -1,6 +1,5 @@
 package pt.isel.pc;
 
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
