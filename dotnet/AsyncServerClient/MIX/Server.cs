@@ -91,13 +91,13 @@ namespace AsyncServerClient.MIX
 
             server.Stop();
             cts.Cancel();
+            Console.WriteLine("Shutting down server...");
 
             await listenTask;
         }
 
         //Server Connection
-        private async Task ServeConnectionAsync(TcpClient connection,
-            CancellationToken cToken = default(CancellationToken))
+        private async Task ServeConnectionAsync(TcpClient connection, CancellationToken cToken = default(CancellationToken))
         {
             using (connection)
             {
@@ -133,7 +133,7 @@ namespace AsyncServerClient.MIX
                     switch (request.Method)
                     {
                         case "CREATE":
-                            response = CreateHandler(request.Path);
+                            response = CreateHandler(request.Path, cToken);
                             break;
                         case "PUT":
                             response = PutHandler(request.Path, request.Payload);
@@ -145,34 +145,14 @@ namespace AsyncServerClient.MIX
                         case "TAKE":
                             response = await TakeHandler(request.Path, request.Headers.GetValueOrDefault("timeout"));
                             break;
+                        default:
+                            response = new Response
+                            {
+                                Status = 405
+                            };
+                            break;
                     }
 
-                    // // Retrive the Request object, and show its Method and Headers fields
-                    // Request request = json.ToObject<Request>();
-                    // Console.WriteLine($"Request {{\n  Method: {request.Method}");
-                    // Console.Write("  Headers: { ");
-                    // if (request.Headers != null)
-                    // {
-                    //     int i = 0;
-                    //     foreach (KeyValuePair<String, String> entry in request.Headers)
-                    //     {
-                    //         Console.Write($"{entry.Key}: {entry.Value}");
-                    //         if (i < request.Headers.Count - 1)
-                    //             Console.Write(", ");
-                    //         i++;
-                    //     }
-                    // }
-                    // Console.WriteLine(" }\n}");
-                    //
-                    // // Simulate the service time
-                    // await Task.Delay(random.Value.Next(MIN_SERVICE_TIME, MAX_SERVICE_TIME), cToken);
-
-                    //Send Response
-                    // Response response = new Response
-                    // {
-                    //     Status = 200,
-                    //     Payload = json,
-                    // };
                     serializer.Serialize(writer, response);
                     await writer.FlushAsync();
 
@@ -212,11 +192,11 @@ namespace AsyncServerClient.MIX
             };
         }
 
-        private Response CreateHandler(string requestPath)
+        private Response CreateHandler(string requestPath, CancellationToken cToken)
         {
             if (!queues.ContainsKey(requestPath))
             {
-                queues.Add(requestPath, new TransferQueueAsync<JObject>());
+                queues.Add(requestPath, new TransferQueueAsync<JObject>(cToken));
                 Console.WriteLine($"[{requestCount}] Created list {requestPath}");
             }
             else
@@ -242,8 +222,7 @@ namespace AsyncServerClient.MIX
             }
 
             int timeout = Int32.Parse(timeoutStr);
-            CancellationTokenSource cts = new CancellationTokenSource();
-            Task<bool> task = queue.Transfer(requestPayload, cts.Token, timeout);
+            Task<bool> task = queue.Transfer(requestPayload, timeout);
             Console.WriteLine($"[{requestCount}] Transfer Task Created");
             try
             {
@@ -287,8 +266,7 @@ namespace AsyncServerClient.MIX
             }
 
             int timeout = Int32.Parse(timeoutStr);
-            CancellationTokenSource cts = new CancellationTokenSource();
-            Task<JObject> task = queue.Take(cts.Token, timeout);
+            Task<JObject> task = queue.Take(timeout);
             Console.WriteLine($"[{requestCount}] Take Task Created");
             try
             {

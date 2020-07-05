@@ -66,9 +66,11 @@ namespace AsyncServerClient.MIX
         private readonly TimerCallback timeoutHandlerTransfer;
         private readonly Action<object> cancellationHandlerTake;
         private readonly TimerCallback timeoutHandlerTake;
+        private CancellationToken parentCToken;
 
-        public TransferQueueAsync()
+        public TransferQueueAsync(CancellationToken cToken)
         {
+            parentCToken = cToken;
             pendingMessage = new LinkedList<Message>();
             asyncTakes = new LinkedList<AsyncTake>();
             cancellationHandlerTransfer = new Action<object>((acquireNode) =>
@@ -93,15 +95,17 @@ namespace AsyncServerClient.MIX
                     asyncTake.SetResult(payload);
                     return;
                 }
+
                 Message message = new Message(payload);
                 pendingMessage.AddLast(message);
             }
         }
 
-        public Task<bool> Transfer(T payload, CancellationToken cToken, int timeout = Timeout.Infinite)
+        public Task<bool> Transfer(T payload, int timeout = Timeout.Infinite)
         {
             lock (theLock)
             {
+                CancellationToken cToken = CancellationTokenSource.CreateLinkedTokenSource(parentCToken).Token;
                 AsyncTransfer asyncTransfer = new AsyncTransfer(cToken);
                 if (asyncTakes.Any())
                 {
@@ -127,10 +131,11 @@ namespace AsyncServerClient.MIX
             }
         }
 
-        public Task<T> Take(CancellationToken cToken, int timeout = Timeout.Infinite)
+        public Task<T> Take(int timeout = Timeout.Infinite)
         {
             lock (theLock)
             {
+                CancellationToken cToken = CancellationTokenSource.CreateLinkedTokenSource(parentCToken).Token;
                 AsyncTake asyncTake = new AsyncTake(cToken);
                 if (pendingMessage.Any())
                 {
@@ -154,7 +159,7 @@ namespace AsyncServerClient.MIX
 
                 if (cToken.CanBeCanceled)
                     asyncTake.cTokenRegistration = cToken.Register(cancellationHandlerTake, node);
-                
+
                 return asyncTake.Task;
             }
         }
