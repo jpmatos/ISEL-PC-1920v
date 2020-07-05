@@ -105,6 +105,7 @@ namespace AsyncServerClient.Util
         {
             lock (theLock)
             {
+                //Create CTS from the Server's token so when Server cancels every Transfer cancels too
                 CancellationToken cToken = CancellationTokenSource.CreateLinkedTokenSource(parentCToken).Token;
                 AsyncTransfer asyncTransfer = new AsyncTransfer(cToken);
                 if (asyncTakes.Any())
@@ -135,6 +136,7 @@ namespace AsyncServerClient.Util
         {
             lock (theLock)
             {
+                //Create CTS from the Server's token so when Server cancels every Take cancels too
                 CancellationToken cToken = CancellationTokenSource.CreateLinkedTokenSource(parentCToken).Token;
                 AsyncTake asyncTake = new AsyncTake(cToken);
                 if (pendingMessage.Any())

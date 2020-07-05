@@ -14,7 +14,7 @@ namespace AsyncServerClient
     public class TcpMultiThreadedJsonEchoServer
     {
         private const int SERVER_PORT = 13000;
-        private const int MAX_SIMULTANEOUS_CONNECTIONS = 20;
+        private const int MAX_SIMULTANEOUS_CONNECTIONS = 3;
         private const int WAIT_FOR_IDLE_TIME = 10000;
         private const int POLLING_INTERVAL = WAIT_FOR_IDLE_TIME / 20;
         private static Logger logger;
@@ -120,7 +120,7 @@ namespace AsyncServerClient
 
                     if (reader.TokenType == JsonToken.None)
                     {
-                        logger.Log($"[{requestCount}] reached end of input stream, ending.");
+                        logger.Log($"[{requestCount}] reached end of input stream, ending");
                         return;
                     }
 
@@ -128,6 +128,7 @@ namespace AsyncServerClient
                     JObject json = await JObject.LoadAsync(reader);
                     Request request = json.ToObject<Request>();
 
+                    //Call appropriate Handler
                     Response response;
                     if (!cToken.IsCancellationRequested)
                         switch (request.Method)
@@ -166,6 +167,7 @@ namespace AsyncServerClient
                 }
                 catch (JsonReaderException e)
                 {
+                    //JSON error
                     logger.Log($"[{requestCount}] Error reading JSON: {e.Message}, continuing");
                     Response response = new Response
                     {
@@ -176,6 +178,7 @@ namespace AsyncServerClient
                 }
                 catch (Exception e)
                 {
+                    //Server error
                     logger.Log($"[{requestCount}] Unexpected exception, closing connection {e.Message}");
                     Response response = new Response
                     {
@@ -191,6 +194,7 @@ namespace AsyncServerClient
         {
             if (!queues.TryGetValue(requestPath, out TransferQueueAsync<JObject> queue))
             {
+                //No path
                 logger.Log($"[{requestCount}] Put NoQueue '{requestPath}'");
                 return new Response
                 {
@@ -198,6 +202,7 @@ namespace AsyncServerClient
                 };
             }
 
+            //Put payload
             queue.Put(requestPayload);
             logger.Log($"[{requestCount}] Put Success");
 
@@ -211,13 +216,14 @@ namespace AsyncServerClient
         {
             if (!queues.ContainsKey(requestPath))
             {
+                //Create Path
                 queues.Add(requestPath, new TransferQueueAsync<JObject>(cToken));
-                logger.Log($"[{requestCount}] Created list {requestPath}");
-                logger.Log($"[{requestCount}] Created list {requestPath}");
+                logger.Log($"[{requestCount}] Created list '{requestPath}'");
             }
             else
             {
-                logger.Log($"[{requestCount}] List {requestPath} exists");
+                //Path already exists
+                logger.Log($"[{requestCount}] List '{requestPath}' already exists");
             }
 
             return new Response
@@ -230,6 +236,7 @@ namespace AsyncServerClient
         {
             if (!queues.TryGetValue(requestPath, out TransferQueueAsync<JObject> queue))
             {
+                //No Path
                 logger.Log($"[{requestCount}] Transfer NoQueue '{requestPath}'");
                 return new Response
                 {
@@ -245,6 +252,7 @@ namespace AsyncServerClient
                 bool result = await task;
                 if (result)
                 {
+                    //Completed Successfully
                     logger.Log($"[{requestCount}] Transfer Success");
                     return new Response
                     {
@@ -252,7 +260,7 @@ namespace AsyncServerClient
                     };
                 }
 
-                //timeout
+                //Timeout
                 logger.Log($"[{requestCount}] Transfer Timeout");
                 return new Response
                 {
@@ -261,7 +269,7 @@ namespace AsyncServerClient
             }
             catch (TaskCanceledException)
             {
-                //cancelled
+                //Cancelled
                 logger.Log($"[{requestCount}] Transfer Cancelled");
                 return new Response
                 {
@@ -274,6 +282,7 @@ namespace AsyncServerClient
         {
             if (!queues.TryGetValue(requestPath, out TransferQueueAsync<JObject> queue))
             {
+                //No Path
                 logger.Log($"[{requestCount}] Take NoQueue '{requestPath}'");
                 return new Response
                 {
@@ -289,6 +298,7 @@ namespace AsyncServerClient
                 JObject result = await task;
                 if (result != null)
                 {
+                    //Completed Successfully
                     logger.Log($"[{requestCount}] Take Success");
                     return new Response
                     {
@@ -297,7 +307,7 @@ namespace AsyncServerClient
                     };
                 }
 
-                //timeout
+                //Timeout
                 logger.Log($"[{requestCount}] Take Timeout");
                 return new Response
                 {
@@ -306,7 +316,7 @@ namespace AsyncServerClient
             }
             catch (TaskCanceledException)
             {
-                //cancelled
+                //Cancelled
                 logger.Log($"[{requestCount}] Take Cancelled");
                 return new Response
                 {
