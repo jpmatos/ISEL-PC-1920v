@@ -2,11 +2,8 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace AsyncServerClient.JSON
+namespace AsyncServerClient.MIX
 {
-/**
- * The type that represents a JSON response
- */
     public class Response
     {
         public int Status { get; set; }

@@ -16,14 +16,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Net;
-using System.Net.Sockets;
-using System.Diagnostics;
 
-namespace AsyncServer.RAW
+namespace AsyncServerClient.RAW
 {
 /**
  * A Tcp multithreaded echo server, using TAP interfaces and C# asynchronous methods.
@@ -67,8 +67,7 @@ namespace AsyncServer.RAW
          * If we want to cancel the processing of all already accepted connections, we
          * must propagate the received CancellationToken.
         */
-        private async Task ServeConnectionAsync(TcpClient connection,
-            CancellationToken cToken = default(CancellationToken))
+        private async Task ServeConnectionAsync(TcpClient connection, CancellationToken cToken = default(CancellationToken))
         {
             using (connection)
             {

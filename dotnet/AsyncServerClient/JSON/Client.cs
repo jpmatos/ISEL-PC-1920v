@@ -19,15 +19,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
-using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace AsyncServer.JSON
+namespace AsyncServerClient.JSON
 {
 /**
  * Represents the payload of the request message

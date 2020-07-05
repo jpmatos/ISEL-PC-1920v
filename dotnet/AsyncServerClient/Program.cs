@@ -1,7 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using AsyncServerClient.JSON;
+using AsyncServerClient.RAW;
+using AsyncServerClient.MIX;
 
-namespace AsyncServer
+namespace AsyncServerClient
 {
     internal class Program
     {
@@ -13,16 +16,22 @@ namespace AsyncServer
                 switch (option)
                 {
                     case "-serverJSON":
-                        await JSON.JsonEchoServer.LaunchServer();
+                        await JsonEchoServer.LaunchServer();
                         break;
                     case "-clientJSON":
-                        await JSON.JsonEchoClient.LaunchClient(args.Skip(1).ToArray());
+                        await JsonEchoClient.LaunchClient(args.Skip(1).ToArray());
                         break;
                     case "-serverRAW":
-                        await RAW.TcpMultiThreadedTapEchoServer.LaunchServer();
+                        await TcpMultiThreadedTapEchoServer.LaunchServer();
                         break;
                     case "-clientRAW":
-                        await RAW.TcpEchoClientAsync.LaunchClient(args.Skip(1).ToArray());
+                        await TcpEchoClientAsync.LaunchClient(args.Skip(1).ToArray());
+                        break;
+                    case "-serverMIX":
+                        await TcpMultiThreadedJsonEchoServer.LaunchServer();
+                        break;
+                    case "-clientMIX":
+                        await JsonEchoClientSingle.LaunchClient();
                         break;
                     default:
                         break;

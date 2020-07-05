@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace AsyncServer.JSON
+namespace AsyncServerClient.JSON
 {
 /**
  * The type that represents a JSON request

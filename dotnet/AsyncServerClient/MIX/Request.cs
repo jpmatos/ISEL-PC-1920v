@@ -2,20 +2,18 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace AsyncServerClient.JSON
+namespace AsyncServerClient.MIX
 {
-/**
- * The type that represents a JSON response
- */
-    public class Response
+    public class Request
     {
-        public int Status { get; set; }
+        public String Method { get; set; }
+        public String Path { get; set; }
         public Dictionary<String, String> Headers { get; set; }
         public JObject Payload { get; set; }
 
         public override String ToString()
         {
-            return $"Status: {Status}, Headers: {Headers}, Payload: {Payload}";
+            return $"Method: {Method}, Path: {Path}, Headers: {Headers}, Payload: {Payload}";
         }
     }
 }

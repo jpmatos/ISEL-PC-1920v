@@ -18,15 +18,13 @@
  **/
 
 using System;
+using System.Diagnostics;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Diagnostics;
 
-namespace AsyncServer.RAW
+namespace AsyncServerClient.RAW
 {
 /**
  * Tcp client for a echo server.
