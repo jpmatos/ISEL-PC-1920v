@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace AsyncServerClient.MIX
+namespace AsyncServerClient.Util
 {
     public class TransferQueueAsync<T> where T : class
     {
@@ -179,7 +179,7 @@ namespace AsyncServerClient.MIX
                         pendingMessage.Remove(acquireNode);
                         acquire.transfer.done = true;
                         complete = true;
-                        Console.WriteLine("Removed from pendingMessage list.");
+                        // Console.WriteLine("Removed from pendingMessage list.");
                     }
                 }
 
@@ -204,7 +204,7 @@ namespace AsyncServerClient.MIX
                         asyncTakes.Remove(acquiredNode);
                         acquire.done = true;
                         complete = true;
-                        Console.WriteLine("Removed from asyncTakes list.");
+                        // Console.WriteLine("Removed from asyncTakes list.");
                     }
                 }
 

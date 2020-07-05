@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace AsyncServerClient.MIX
+namespace AsyncServerClient.Util
 {
     public class Request
     {

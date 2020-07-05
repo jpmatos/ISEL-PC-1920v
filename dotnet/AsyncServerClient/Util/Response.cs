@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
-namespace AsyncServerClient.MIX
+namespace AsyncServerClient.Util
 {
     public class Response
     {
@@ -12,7 +12,10 @@ namespace AsyncServerClient.MIX
 
         public override String ToString()
         {
-            return $"Status: {Status}, Headers: {Headers}, Payload: {Payload}";
+            if (Headers != null || Payload != null)
+                return $"Status: {Status}, Headers: {Headers}, Payload: {Payload}";
+            else
+                return $"Status: {Status}";
         }
     }
 }

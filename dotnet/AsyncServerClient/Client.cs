@@ -19,31 +19,33 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using AsyncServerClient.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace AsyncServerClient.MIX
+namespace AsyncServerClient
 {
     class JsonEchoClientSingle
     {
-        public class RequestPayload
+        private class RequestPayload
         {
             public string Message { get; set; }
+
             public override String ToString()
             {
                 return $"[ Message: {Message}]";
             }
         }
-        
+
         private const int SERVER_PORT = 13000;
         private static volatile int requestCount = 0;
         private static JsonSerializer serializer = new JsonSerializer();
-        
+
+        //Entry Point
         public static async Task LaunchClient()
         {
             bool cont = true;
@@ -60,50 +62,16 @@ namespace AsyncServerClient.MIX
                 switch (oper)
                 {
                     case 1:
-                        request = new Request
-                        {
-                            Method = "CREATE",
-                            Headers = new Dictionary<String, String>(),
-                            Path = "path01"
-                        };
+                        request = BuildCreateRequest();
                         break;
                     case 2:
-                        request = new Request
-                        {
-                            Method = "PUT",
-                            Headers = new Dictionary<String, String>(),
-                            Path = "path01",
-                            Payload = JObject.FromObject(new RequestPayload
-                            {
-                                Message = "message01"
-                            })
-                        };
+                        request = BuildPutRequest();
                         break;
                     case 3:
-                        request = new Request
-                        {
-                            Method = "TRANSFER",
-                            Headers = new Dictionary<String, String>
-                            {
-                                {"timeout", "10000"}
-                            },
-                            Path = "path01",
-                            Payload = JObject.FromObject(new RequestPayload
-                            {
-                                Message = "message01"
-                            })
-                        };
+                        request = BuildTransferRequest();
                         break;
                     case 4:
-                        request = new Request
-                        {
-                            Method = "TAKE",
-                            Headers = new Dictionary<String, String>
-                            {
-                                {"timeout", "10000"}
-                            },
-                            Path = "path01",
-                        };
+                        request = BuildTakeRequest();
                         break;
                     case 0:
                         cont = false;
@@ -112,9 +80,79 @@ namespace AsyncServerClient.MIX
                         Console.WriteLine("No operation.");
                         continue;
                 }
+
                 await SendRequestAndReceiveResponseAsync("localhost", request);
             }
-            
+        }
+
+        private static Request BuildTakeRequest()
+        {
+            Console.WriteLine("Path:");
+            string path = Console.ReadLine();
+            Console.WriteLine("Timeout:");
+            string timeout = Console.ReadLine();
+            return new Request
+            {
+                Method = "TAKE",
+                Headers = new Dictionary<String, String>
+                {
+                    {"timeout", timeout}
+                },
+                Path = path,
+            };
+        }
+
+        private static Request BuildTransferRequest()
+        {
+            Console.WriteLine("Path:");
+            string path = Console.ReadLine();
+            Console.WriteLine("Message:");
+            string message = Console.ReadLine();
+            Console.WriteLine("Timeout:");
+            string timeout = Console.ReadLine();
+            return new Request
+            {
+                Method = "TRANSFER",
+                Headers = new Dictionary<String, String>
+                {
+                    {"timeout", timeout}
+                },
+                Path = path,
+                Payload = JObject.FromObject(new RequestPayload
+                {
+                    Message = message
+                })
+            };
+        }
+
+        private static Request BuildPutRequest()
+        {
+            Console.WriteLine("Path:");
+            string path = Console.ReadLine();
+            Console.WriteLine("Message:");
+            string message = Console.ReadLine();
+            return new Request
+            {
+                Method = "PUT",
+                Headers = new Dictionary<String, String>(),
+                Path = path,
+                Payload = JObject.FromObject(new RequestPayload
+                {
+                    Message = message
+                })
+            };
+        }
+
+        private static Request BuildCreateRequest()
+        {
+            Console.WriteLine("Path:");
+            string path = Console.ReadLine();
+            return new Request
+            {
+                Method = "CREATE",
+                Headers = new Dictionary<String, String>(),
+                Path = path
+            };
         }
 
         static async Task SendRequestAndReceiveResponseAsync(string server, Request request)
@@ -145,8 +183,7 @@ namespace AsyncServerClient.MIX
                         do
                         {
                             await reader.ReadAsync();
-                        } 
-                        while (reader.TokenType != JsonToken.StartObject &&
+                        } while (reader.TokenType != JsonToken.StartObject &&
                                  reader.TokenType != JsonToken.None);
 
                         if (reader.TokenType == JsonToken.None)
@@ -160,7 +197,7 @@ namespace AsyncServerClient.MIX
 
                         // Back to the .NET world
                         Response response = jresponse.ToObject<Response>();
-                        Console.WriteLine($"<--{response.ToString()}");
+                        Console.WriteLine($"<--{response}");
                     }
                     catch (JsonReaderException jre)
                     {
@@ -170,6 +207,7 @@ namespace AsyncServerClient.MIX
                     {
                         Console.WriteLine($"-***error: exception: {e.Message}");
                     }
+
                     Interlocked.Increment(ref requestCount);
                 }
                 catch (Exception ex)
