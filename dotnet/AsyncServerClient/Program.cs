@@ -19,10 +19,12 @@ namespace AsyncServerClient
                         await JsonEchoClientSingle.LaunchClient();
                         break;
                     default:
-                        Console.WriteLine("Specify '-server' or '-client' as first argument.");
+                        Console.WriteLine($"Invalid option {option}.");
                         break;
                 }
             }
+            else
+                Console.WriteLine("Specify '-server' or '-client' as first argument.");
         }
     }
 }
