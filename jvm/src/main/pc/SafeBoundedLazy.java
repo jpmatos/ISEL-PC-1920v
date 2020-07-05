@@ -1,4 +1,4 @@
-package pt.isel.pc;
+package pc;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;

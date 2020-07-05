@@ -1,4 +1,4 @@
-package pt.isel.pc;
+package pc;
 
 // Using static methods and not instance ones to avoid allocation
 // Can I have value types in the JVM, please...

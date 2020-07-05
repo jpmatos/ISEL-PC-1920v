@@ -1,4 +1,4 @@
-package pt.isel.pc;
+package pc;
 
 import org.junit.Test;
 

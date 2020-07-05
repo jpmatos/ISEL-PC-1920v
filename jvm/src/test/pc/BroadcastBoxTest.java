@@ -1,8 +1,7 @@
-package pt.isel.pc;
+package pc;
 
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;

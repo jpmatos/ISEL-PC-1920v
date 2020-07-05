@@ -1,4 +1,4 @@
-package pt.isel.pc;
+package pc;
 
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
