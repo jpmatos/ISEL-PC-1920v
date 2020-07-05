@@ -1,22 +1,3 @@
-/**
- * ISEL, LEIC, Concurrent Programming
- *
- * Client of the TCP JSON echo server.
- *
- * To build this client as a .NET Core project:
- *   1. Set the directory where the file client.cs resides as the current directory 
- *   2. To create the project file (<current-dir-name>.csproj) execute : dotnet new console<enter>
- *   3. Remove the file "Program.cs"
- *   4. To add the NuGet package Newtonsoft.Json to the project execute: dotnet add package Newtonsoft.Json<enter>
- *   5. To build the executable execute: dotnet build<enter>
- *   6. To run the executable execute: dotnet run<enter> 
- *
- * Note: When using Visual Studio, add the Newtonsoft.Json package, consulting:
- *    https://docs.microsoft.com/en-us/nuget/quickstart/install-and-use-a-package-in-visual-studio
- *
- * Carlos Martins, June 2020
- **/
-
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -36,7 +36,7 @@ namespace AsyncServerClient
         {
             TcpMultiThreadedJsonEchoServer echoEchoServer = new TcpMultiThreadedJsonEchoServer();
             logger.Init();
-            
+
             CancellationTokenSource cts = new CancellationTokenSource();
             Task listenTask = echoEchoServer.ListenAsync(cts.Token);
 

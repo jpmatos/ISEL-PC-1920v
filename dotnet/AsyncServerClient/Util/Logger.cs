@@ -17,7 +17,7 @@ namespace AsyncServerClient.Util
             this.maxLog = maxLog;
             finish = false;
         }
-        
+
         public void Init()
         {
             Thread logger = new Thread(() =>
@@ -25,7 +25,7 @@ namespace AsyncServerClient.Util
                 while (!finish)
                 {
                     // await Task.Delay(1000);
-                    if(queue.TryDequeue(out string message))
+                    if (queue.TryDequeue(out string message))
                         Console.WriteLine($"Log - {message}");
                 }
             });
@@ -40,7 +40,7 @@ namespace AsyncServerClient.Util
                 queue.Enqueue(message);
             }
         }
-        
+
         public Task FinishLogs()
         {
             finish = true;
@@ -48,7 +48,7 @@ namespace AsyncServerClient.Util
             {
                 while (!queue.IsEmpty)
                 {
-                    if(queue.TryDequeue(out string message))
+                    if (queue.TryDequeue(out string message))
                         Console.WriteLine($"Log - {message}");
                 }
             });
