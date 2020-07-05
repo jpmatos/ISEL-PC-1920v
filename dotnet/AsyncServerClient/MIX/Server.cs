@@ -133,17 +133,17 @@ namespace AsyncServerClient.MIX
                     switch (request.Method)
                     {
                         case "CREATE":
-                            response = HandleCreate(request.Path);
+                            response = CreateHandler(request.Path);
                             break;
                         case "PUT":
-                            response = HandlePut(request.Path, request.Payload);
+                            response = PutHandler(request.Path, request.Payload);
                             break;
                         case "TRANSFER":
-                            response = await HandleTransfer(request.Path, request.Payload,
+                            response = await TransferHandler(request.Path, request.Payload,
                                 request.Headers.GetValueOrDefault("timeout"));
                             break;
                         case "TAKE":
-                            response = await HandleTake(request.Path, request.Headers.GetValueOrDefault("timeout"));
+                            response = await TakeHandler(request.Path, request.Headers.GetValueOrDefault("timeout"));
                             break;
                     }
 
@@ -192,55 +192,49 @@ namespace AsyncServerClient.MIX
             }
         }
 
-        private async Task<Response> HandleTake(string requestPath, string timeoutStr)
+        private Response PutHandler(string requestPath, JObject requestPayload)
         {
             if (!queues.TryGetValue(requestPath, out TransferQueueAsync<JObject> queue))
             {
+                Console.WriteLine($"[{requestCount}] Put NoQueue '{requestPath}'");
                 return new Response
                 {
                     Status = 404
                 };
             }
 
-            int timeout = Int32.Parse(timeoutStr);
-            CancellationTokenSource cts = new CancellationTokenSource();
-            Task<JObject> task = queue.Take(cts.Token, timeout);
-            Console.WriteLine($"[{requestCount}] Take Task Created");
-            try
-            {
-                JObject result = await task;
-                if (result != null)
-                {
-                    Console.WriteLine($"[{requestCount}] Take Success");
-                    return new Response
-                    {
-                        Status = 200,
-                        Payload = result
-                    };
-                }
+            queue.Put(requestPayload);
+            Console.WriteLine($"[{requestCount}] Put Success");
 
-                //timeout
-                Console.WriteLine($"[{requestCount}] Take Timeout");
-                return new Response
-                {
-                    Status = 204
-                };
-            }
-            catch (TaskCanceledException)
+            return new Response
             {
-                //cancelled
-                Console.WriteLine($"[{requestCount}] Take Cancelled");
-                return new Response
-                {
-                    Status = 204
-                };
-            }
+                Status = 200
+            };
         }
 
-        private async Task<Response> HandleTransfer(string requestPath, JObject requestPayload, string timeoutStr)
+        private Response CreateHandler(string requestPath)
+        {
+            if (!queues.ContainsKey(requestPath))
+            {
+                queues.Add(requestPath, new TransferQueueAsync<JObject>());
+                Console.WriteLine($"[{requestCount}] Created list {requestPath}");
+            }
+            else
+            {
+                Console.WriteLine($"[{requestCount}] List {requestPath} exists");
+            }
+
+            return new Response
+            {
+                Status = 200
+            };
+        }
+
+        private async Task<Response> TransferHandler(string requestPath, JObject requestPayload, string timeoutStr)
         {
             if (!queues.TryGetValue(requestPath, out TransferQueueAsync<JObject> queue))
             {
+                Console.WriteLine($"[{requestCount}] Transfer NoQueue '{requestPath}'");
                 return new Response
                 {
                     Status = 404
@@ -281,36 +275,50 @@ namespace AsyncServerClient.MIX
             }
         }
 
-        private Response HandlePut(string requestPath, JObject requestPayload)
+        private async Task<Response> TakeHandler(string requestPath, string timeoutStr)
         {
             if (!queues.TryGetValue(requestPath, out TransferQueueAsync<JObject> queue))
             {
+                Console.WriteLine($"[{requestCount}] Take NoQueue '{requestPath}'");
                 return new Response
                 {
                     Status = 404
                 };
             }
 
-            //TODO
-            return null;
-        }
+            int timeout = Int32.Parse(timeoutStr);
+            CancellationTokenSource cts = new CancellationTokenSource();
+            Task<JObject> task = queue.Take(cts.Token, timeout);
+            Console.WriteLine($"[{requestCount}] Take Task Created");
+            try
+            {
+                JObject result = await task;
+                if (result != null)
+                {
+                    Console.WriteLine($"[{requestCount}] Take Success");
+                    return new Response
+                    {
+                        Status = 200,
+                        Payload = result
+                    };
+                }
 
-        private Response HandleCreate(string requestPath)
-        {
-            if (!queues.ContainsKey(requestPath))
-            {
-                queues.Add(requestPath, new TransferQueueAsync<JObject>());
-                Console.WriteLine($"[{requestCount}] Created list {requestPath}");
+                //timeout
+                Console.WriteLine($"[{requestCount}] Take Timeout");
+                return new Response
+                {
+                    Status = 204
+                };
             }
-            else
+            catch (TaskCanceledException)
             {
-                Console.WriteLine($"[{requestCount}] List {requestPath} exists");
+                //cancelled
+                Console.WriteLine($"[{requestCount}] Take Cancelled");
+                return new Response
+                {
+                    Status = 204
+                };
             }
-
-            return new Response
-            {
-                Status = 200
-            };
         }
     }
 }

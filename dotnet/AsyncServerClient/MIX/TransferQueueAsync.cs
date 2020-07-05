@@ -81,6 +81,23 @@ namespace AsyncServerClient.MIX
                 CancellationHandler(acquireNode, false, false));
         }
 
+        public void Put(T payload)
+        {
+            lock (theLock)
+            {
+                if (asyncTakes.Any())
+                {
+                    AsyncTake asyncTake = asyncTakes.First();
+                    asyncTakes.RemoveFirst();
+                    asyncTake.done = true;
+                    asyncTake.SetResult(payload);
+                    return;
+                }
+                Message message = new Message(payload);
+                pendingMessage.AddLast(message);
+            }
+        }
+
         public Task<bool> Transfer(T payload, CancellationToken cToken, int timeout = Timeout.Infinite)
         {
             lock (theLock)
@@ -141,11 +158,6 @@ namespace AsyncServerClient.MIX
                 return asyncTake.Task;
             }
         }
-
-        // public async void Put(T payload)
-        // {
-        //     
-        // }
 
         private void CancellationHandler(object _acquireNode, bool canceling, bool transfer)
         {
